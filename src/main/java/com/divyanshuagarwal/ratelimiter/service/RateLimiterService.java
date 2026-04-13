@@ -51,17 +51,17 @@ public class RateLimiterService {
         }
 
         // Consume token
-        tokens -= 1;
+        final double updatedTokens = tokens - 1;
 
         // Step 6: Save tokens and lastRefillTime + set TTL in a single pipeline
         redisTemplate.executePipelined((org.springframework.data.redis.core.RedisCallback<Object>) connection -> {
             byte[] k = key.getBytes();
-            connection.hSet(k, "tokens".getBytes(), String.valueOf(tokens).getBytes());
+            connection.hSet(k, "tokens".getBytes(), String.valueOf(updatedTokens).getBytes());
             connection.hSet(k, "lastRefillTime".getBytes(), String.valueOf(currentTime).getBytes());
             connection.expire(k, Duration.ofMinutes(2).getSeconds());
             return null;
         });
 
-        return new RateLimiterResponse(true, tokens);
+        return new RateLimiterResponse(true, updatedTokens);
     }
 }
