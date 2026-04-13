@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Rate Limiter Simulator</title>
+    <style>
+        body { font-family: Arial; text-align: center; }
+        input, button { padding: 10px; margin: 5px; }
+        .allowed { color: green; }
+        .blocked { color: red; }
+        #log {
+            width: 60%;
+            height: 200px;
+            margin: auto;
+            overflow-y: scroll;
+            border: 1px solid #ccc;
+            padding: 10px;
+            text-align: left;
+        }
+    </style>
+</head>
+<body>
+
+<h1>🚀 Rate Limiter Simulator</h1>
+
+<input id="userId" placeholder="User ID" value="user1"/>
+
+<br>
+
+<button onclick="sendRequest()">Send Request</button>
+<button onclick="startAuto()">Start Auto</button>
+<button onclick="stopAuto()">Stop Auto</button>
+<button onclick="reset()">Reset</button>
+
+<h2 id="status"></h2>
+<h3 id="tokens"></h3>
+
+<div id="log"></div>
+
+<script>
+let interval;
+
+async function sendRequest() {
+    const userId = document.getElementById("userId").value;
+
+    const res = await fetch(`/rate-limit/allow?userId=${userId}`);
+    const data = await res.json();
+
+    const status = document.getElementById("status");
+    const tokens = document.getElementById("tokens");
+    const log = document.getElementById("log");
+
+    if (res.status === 200) {
+        status.innerHTML = "✅ Allowed";
+        status.className = "allowed";
+    } else {
+        status.innerHTML = "❌ Blocked";
+        status.className = "blocked";
+    }
+
+    tokens.innerHTML = "Remaining Tokens: " + data.tokens.toFixed(2);
+
+    log.innerHTML += `<div>${new Date().toLocaleTimeString()} - ${status.innerText}</div>`;
+    log.scrollTop = log.scrollHeight;
+}
+
+function startAuto() {
+    interval = setInterval(sendRequest, 200); // simulate traffic
+}
+
+function stopAuto() {
+    clearInterval(interval);
+}
+
+function reset() {
+    location.reload();
+}
+</script>
+
+</body>
+</html>
