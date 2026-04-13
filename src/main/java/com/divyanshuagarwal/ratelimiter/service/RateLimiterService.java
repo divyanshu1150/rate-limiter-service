@@ -7,6 +7,8 @@ import org.springframework.stereotype.Service;
 import com.divyanshuagarwal.ratelimiter.model.RateLimiterResponse;
 
 import java.time.Duration;
+import java.util.Arrays;
+import java.util.List;
 
 @Service
 public class RateLimiterService {
@@ -14,8 +16,8 @@ public class RateLimiterService {
     @Autowired
     private StringRedisTemplate redisTemplate;
 
-    private static final int MAX_TOKENS = 100;
-    private static final double REFILL_RATE = 100.0 / 60.0; // tokens per second
+    private static final int MAX_TOKENS = 10;
+    private static final double REFILL_RATE = 10.0 / 30.0; // tokens per second (full refill in 30s)
 
     public RateLimiterResponse allowRequest(String userId) {
 
@@ -24,20 +26,19 @@ public class RateLimiterService {
         // Step 1: Get current time
         long currentTime = System.currentTimeMillis();
 
-        // Step 2: Fetch from Redis
-        Object tokensObj = redisTemplate.opsForHash().get(key, "tokens");
-        Object lastRefillObj = redisTemplate.opsForHash().get(key, "lastRefillTime");
+        // Step 2: Fetch tokens and lastRefillTime in a single Redis call
+        List<Object> fields = redisTemplate.opsForHash().multiGet(key, Arrays.asList("tokens", "lastRefillTime"));
 
         double tokens;
         long lastRefillTime;
 
         // Step 3: Initialize if user not present
-        if (tokensObj == null || lastRefillObj == null) {
+        if (fields.get(0) == null || fields.get(1) == null) {
             tokens = MAX_TOKENS;
             lastRefillTime = currentTime;
         } else {
-            tokens = Double.parseDouble(tokensObj.toString());
-            lastRefillTime = Long.parseLong(lastRefillObj.toString());
+            tokens = Double.parseDouble(fields.get(0).toString());
+            lastRefillTime = Long.parseLong(fields.get(1).toString());
         }
 
         // Step 4: Refill tokens
@@ -52,12 +53,14 @@ public class RateLimiterService {
         // Consume token
         tokens -= 1;
 
-        // Step 6: Save back to Redis
-        redisTemplate.opsForHash().put(key, "tokens", String.valueOf(tokens));
-        redisTemplate.opsForHash().put(key, "lastRefillTime", String.valueOf(currentTime));
-
-        // Step 7: Set TTL (cleanup inactive users)
-        redisTemplate.expire(key, Duration.ofMinutes(2));
+        // Step 6: Save tokens and lastRefillTime + set TTL in a single pipeline
+        redisTemplate.executePipelined((org.springframework.data.redis.core.RedisCallback<Object>) connection -> {
+            byte[] k = key.getBytes();
+            connection.hSet(k, "tokens".getBytes(), String.valueOf(tokens).getBytes());
+            connection.hSet(k, "lastRefillTime".getBytes(), String.valueOf(currentTime).getBytes());
+            connection.expire(k, Duration.ofMinutes(2).getSeconds());
+            return null;
+        });
 
         return new RateLimiterResponse(true, tokens);
     }
