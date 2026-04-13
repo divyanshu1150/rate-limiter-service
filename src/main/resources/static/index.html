@@ -38,8 +38,12 @@
 
 <script>
 let interval;
+let inFlight = false;
 
 async function sendRequest() {
+    if (inFlight) return;
+    inFlight = true;
+
     const userId = document.getElementById("userId").value;
 
     const res = await fetch(`/rate-limit/allow?userId=${userId}`);
@@ -61,10 +65,12 @@ async function sendRequest() {
 
     log.innerHTML += `<div>${new Date().toLocaleTimeString()} - ${status.innerText}</div>`;
     log.scrollTop = log.scrollHeight;
+
+    inFlight = false;
 }
 
 function startAuto() {
-    interval = setInterval(sendRequest, 200); // simulate traffic
+    interval = setInterval(sendRequest, 500);
 }
 
 function stopAuto() {
