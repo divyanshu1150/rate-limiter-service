@@ -21,27 +21,15 @@
             gap: 10px;
         }
 
-        /* Header */
-        .header {
-            text-align: center;
-        }
+        .header { text-align: center; }
+        .header h1 { font-size: 1.3rem; color: #f8fafc; }
+        .header p  { font-size: 0.78rem; color: #64748b; margin-top: 2px; }
 
-        .header h1 {
-            font-size: 1.3rem;
-            color: #f8fafc;
-        }
-
-        .header p {
-            font-size: 0.78rem;
-            color: #64748b;
-            margin-top: 2px;
-        }
-
-        /* Main grid */
+        /* 3-column main grid */
         .grid {
             display: grid;
-            grid-template-columns: 1fr 1fr;
-            grid-template-rows: auto auto 1fr;
+            grid-template-columns: 1fr 1fr 1fr;
+            grid-template-rows: auto 1fr;
             gap: 10px;
             min-height: 0;
         }
@@ -62,16 +50,12 @@
             margin-bottom: 10px;
         }
 
-        /* Controls — full width */
-        .card-controls {
-            grid-column: 1 / -1;
-        }
+        .card-controls { grid-column: 1 / -1; }
 
         .controls {
             display: flex;
             gap: 8px;
             align-items: center;
-            flex-wrap: nowrap;
         }
 
         input, select {
@@ -97,31 +81,31 @@
         }
 
         button:hover { opacity: 0.85; }
-
         .btn-primary { background: #3b82f6; color: #fff; }
         .btn-success { background: #22c55e; color: #fff; }
         .btn-danger  { background: #ef4444; color: #fff; }
         .btn-neutral { background: #475569; color: #fff; }
 
-        /* Left column: status + token bar + config */
-        .card-left {
+        /* Left column */
+        .col-left {
             display: flex;
             flex-direction: column;
             gap: 10px;
+            min-height: 0;
         }
 
         .status-banner {
             text-align: center;
-            font-size: 1.1rem;
+            font-size: 1rem;
             font-weight: 700;
             padding: 10px;
             border-radius: 8px;
             background: #0f172a;
             transition: background 0.2s;
         }
-
         .status-banner.allowed { background: #14532d; color: #4ade80; }
         .status-banner.blocked { background: #450a0a; color: #f87171; }
+        .status-banner.error   { background: #431407; color: #fb923c; }
 
         .token-info {
             display: flex;
@@ -130,7 +114,6 @@
             color: #94a3b8;
             margin-bottom: 6px;
         }
-
         .token-info span { color: #e2e8f0; font-weight: 600; }
 
         .progress-track {
@@ -139,7 +122,6 @@
             height: 10px;
             overflow: hidden;
         }
-
         .progress-fill {
             height: 100%;
             border-radius: 999px;
@@ -147,61 +129,96 @@
             transition: width 0.3s ease, background 0.3s;
             width: 100%;
         }
-
         .progress-fill.low   { background: #f59e0b; }
         .progress-fill.empty { background: #ef4444; }
 
-        /* Stats */
+        .meta-row {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 8px;
+            font-size: 0.75rem;
+            color: #64748b;
+        }
+        .meta-row span { color: #cbd5e1; }
+
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
-            gap: 8px;
+            gap: 6px;
         }
-
         .stat {
             background: #0f172a;
             border-radius: 8px;
-            padding: 8px;
+            padding: 8px 4px;
             text-align: center;
         }
-
-        .stat-value {
-            font-size: 1.3rem;
-            font-weight: 700;
-            color: #f8fafc;
-        }
-
+        .stat-value { font-size: 1.2rem; font-weight: 700; color: #f8fafc; }
         .stat-value.green { color: #4ade80; }
         .stat-value.red   { color: #f87171; }
+        .stat-label { font-size: 0.62rem; color: #64748b; margin-top: 2px; text-transform: uppercase; }
 
-        .stat-label {
-            font-size: 0.65rem;
-            color: #64748b;
-            margin-top: 2px;
-            text-transform: uppercase;
-        }
-
-        /* Config badges */
-        .config-row {
-            display: flex;
-            gap: 6px;
-            flex-wrap: wrap;
-        }
-
+        .config-row { display: flex; gap: 6px; flex-wrap: wrap; }
         .badge {
             background: #0f172a;
             border: 1px solid #334155;
             border-radius: 6px;
-            padding: 5px 10px;
-            font-size: 0.75rem;
+            padding: 4px 10px;
+            font-size: 0.73rem;
             color: #94a3b8;
         }
-
         .badge span { color: #e2e8f0; font-weight: 600; }
 
-        /* Log — right column, full height */
-        .card-log {
-            grid-row: 2 / -1;
+        /* Middle column: per-user table */
+        .col-mid {
+            display: flex;
+            flex-direction: column;
+            min-height: 0;
+        }
+
+        .user-table-wrap {
+            flex: 1;
+            overflow-y: auto;
+            min-height: 0;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.78rem;
+        }
+
+        thead th {
+            text-align: left;
+            color: #64748b;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            padding: 4px 8px;
+            border-bottom: 1px solid #334155;
+        }
+
+        tbody tr { border-bottom: 1px solid #1e293b; }
+        tbody tr:hover { background: #0f172a; }
+
+        tbody td {
+            padding: 6px 8px;
+            color: #cbd5e1;
+        }
+
+        .user-chip {
+            background: #1e3a5f;
+            color: #93c5fd;
+            border-radius: 4px;
+            padding: 2px 7px;
+            font-weight: 600;
+            font-size: 0.75rem;
+        }
+
+        .td-green { color: #4ade80; font-weight: 600; }
+        .td-red   { color: #f87171; font-weight: 600; }
+
+        /* Right column: log */
+        .col-right {
             display: flex;
             flex-direction: column;
             min-height: 0;
@@ -210,7 +227,7 @@
         #log {
             flex: 1;
             overflow-y: auto;
-            font-size: 0.78rem;
+            font-size: 0.76rem;
             font-family: monospace;
             display: flex;
             flex-direction: column;
@@ -222,28 +239,27 @@
             padding: 4px 8px;
             border-radius: 4px;
             display: flex;
-            gap: 10px;
+            gap: 8px;
             flex-shrink: 0;
         }
-
         .log-entry.allowed { background: #052e16; color: #4ade80; }
         .log-entry.blocked { background: #2d0909; color: #f87171; }
-        .log-time { color: #475569; }
+        .log-entry.error   { background: #431407; color: #fb923c; }
+        .log-time { color: #475569; flex-shrink: 0; }
+        .log-user { color: #93c5fd; flex-shrink: 0; }
     </style>
 </head>
 <body>
 <div class="page">
 
-    <!-- Header -->
     <div class="header">
         <h1>Rate Limiter Simulator</h1>
         <p>Token Bucket Algorithm &mdash; Spring Boot + Redis</p>
     </div>
 
-    <!-- Main grid -->
     <div class="grid">
 
-        <!-- Controls: full width row 1 -->
+        <!-- Controls: full width -->
         <div class="card card-controls">
             <div class="card-title">Controls</div>
             <div class="controls">
@@ -261,8 +277,8 @@
             </div>
         </div>
 
-        <!-- Left column: status + token + stats + config -->
-        <div class="card-left">
+        <!-- Left: status + token + global stats + config -->
+        <div class="col-left">
 
             <div class="card">
                 <div class="card-title">Last Request</div>
@@ -278,14 +294,14 @@
                 <div class="progress-track">
                     <div class="progress-fill" id="progressFill"></div>
                 </div>
-                <div style="display:flex;justify-content:space-between;margin-top:10px;font-size:0.78rem;color:#64748b;">
-                    <span>Last Refill: <span id="lastRefill" style="color:#e2e8f0;">—</span></span>
-                    <span>Window: <span id="windowLen" style="color:#e2e8f0;">—</span></span>
+                <div class="meta-row">
+                    <span>Last Refill: <span id="lastRefill">—</span></span>
+                    <span>Window: <span id="windowLen">—</span></span>
                 </div>
             </div>
 
             <div class="card">
-                <div class="card-title">Session Stats</div>
+                <div class="card-title">Global Stats</div>
                 <div class="stats-grid">
                     <div class="stat">
                         <div class="stat-value" id="statTotal">0</div>
@@ -319,8 +335,27 @@
 
         </div>
 
-        <!-- Right column: log -->
-        <div class="card card-log">
+        <!-- Middle: per-user stats -->
+        <div class="card col-mid">
+            <div class="card-title">Per User Stats</div>
+            <div class="user-table-wrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>User</th>
+                            <th>Total</th>
+                            <th>Allowed</th>
+                            <th>Blocked</th>
+                            <th>Allow %</th>
+                        </tr>
+                    </thead>
+                    <tbody id="userTableBody"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Right: log -->
+        <div class="card col-right">
             <div class="card-title">Request Log</div>
             <div id="log"></div>
         </div>
@@ -333,12 +368,32 @@
     let interval;
     let inFlight = false;
     let total = 0, allowed = 0, blocked = 0;
+    const userStats = {}; // { userId: { total, allowed, blocked } }
+
+    function updateUserTable(userId) {
+        const s = userStats[userId];
+        const tbody = document.getElementById("userTableBody");
+        let row = document.getElementById("urow-" + userId);
+        if (!row) {
+            row = document.createElement("tr");
+            row.id = "urow-" + userId;
+            tbody.appendChild(row);
+        }
+        const pct = s.total > 0 ? ((s.allowed / s.total) * 100).toFixed(0) + "%" : "—";
+        row.innerHTML = `
+            <td><span class="user-chip">${userId}</span></td>
+            <td>${s.total}</td>
+            <td class="td-green">${s.allowed}</td>
+            <td class="td-red">${s.blocked}</td>
+            <td>${pct}</td>
+        `;
+    }
 
     async function sendRequest() {
         if (inFlight) return;
         inFlight = true;
 
-        const userId = document.getElementById("userId").value;
+        const userId = document.getElementById("userId").value.trim() || "user1";
         const res = await fetch(`/rate-limit/allow?userId=${userId}`);
 
         const banner = document.getElementById("statusBanner");
@@ -346,11 +401,12 @@
         const entry = document.createElement("div");
         total++;
 
-        if (res.status === 500 || !res.ok && res.status !== 429) {
+        if (!res.ok && res.status !== 429) {
             banner.textContent = `⚠️ Server Error (${res.status})`;
-            banner.className = "status-banner blocked";
-            entry.className = "log-entry blocked";
+            banner.className = "status-banner error";
+            entry.className = "log-entry error";
             entry.innerHTML = `<span class="log-time">${new Date().toLocaleTimeString()}</span>
+                               <span class="log-user">[${userId}]</span>
                                <span>⚠️ ERROR ${res.status}</span>`;
             log.appendChild(entry);
             log.scrollTop = log.scrollHeight;
@@ -360,11 +416,25 @@
 
         const data = await res.json();
         const isAllowed = res.status === 200;
-        isAllowed ? allowed++ : blocked++;
 
-        banner.textContent = isAllowed ? "✅ Allowed" : "❌ Blocked (429 Too Many Requests)";
+        // Global stats
+        isAllowed ? allowed++ : blocked++;
+        document.getElementById("statTotal").textContent = total;
+        document.getElementById("statAllowed").textContent = allowed;
+        document.getElementById("statBlocked").textContent = blocked;
+        document.getElementById("statRate").textContent = ((allowed / total) * 100).toFixed(0) + "%";
+
+        // Per-user stats
+        if (!userStats[userId]) userStats[userId] = { total: 0, allowed: 0, blocked: 0 };
+        userStats[userId].total++;
+        isAllowed ? userStats[userId].allowed++ : userStats[userId].blocked++;
+        updateUserTable(userId);
+
+        // Status banner
+        banner.textContent = isAllowed ? `✅ Allowed  [${userId}]` : `❌ Blocked (429)  [${userId}]`;
         banner.className = "status-banner " + (isAllowed ? "allowed" : "blocked");
 
+        // Token bar
         const pct = Math.max(0, Math.min(100, (data.tokens / MAX_TOKENS) * 100));
         const fill = document.getElementById("progressFill");
         fill.style.width = pct + "%";
@@ -373,13 +443,10 @@
         document.getElementById("lastRefill").textContent = new Date(data.lastRefillTime).toLocaleTimeString();
         document.getElementById("windowLen").textContent = data.windowSeconds + "s";
 
-        document.getElementById("statTotal").textContent = total;
-        document.getElementById("statAllowed").textContent = allowed;
-        document.getElementById("statBlocked").textContent = blocked;
-        document.getElementById("statRate").textContent = ((allowed / total) * 100).toFixed(0) + "%";
-
+        // Log
         entry.className = "log-entry " + (isAllowed ? "allowed" : "blocked");
         entry.innerHTML = `<span class="log-time">${new Date().toLocaleTimeString()}</span>
+                           <span class="log-user">[${userId}]</span>
                            <span>${isAllowed ? "✅ ALLOWED" : "❌ BLOCKED"}</span>
                            <span>tokens: ${data.tokens.toFixed(2)}</span>`;
         log.appendChild(entry);
