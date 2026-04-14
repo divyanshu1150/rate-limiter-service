@@ -7,7 +7,6 @@ import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.connection.RedisStandaloneConfiguration;
 import org.springframework.data.redis.connection.lettuce.LettuceClientConfiguration;
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
-import org.springframework.data.redis.core.StringRedisTemplate;
 
 import java.net.URI;
 
@@ -40,10 +39,5 @@ public class RedisConfig {
         }
 
         return new LettuceConnectionFactory(config, builder.build());
-    }
-
-    @Bean
-    public StringRedisTemplate redisTemplate(RedisConnectionFactory factory) {
-        return new StringRedisTemplate(factory);
     }
 }
