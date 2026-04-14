@@ -1,85 +1,348 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
     <title>Rate Limiter Simulator</title>
     <style>
-        body { font-family: Arial; text-align: center; }
-        input, button { padding: 10px; margin: 5px; }
-        .allowed { color: green; }
-        .blocked { color: red; }
-        #log {
-            width: 60%;
-            height: 200px;
-            margin: auto;
-            overflow-y: scroll;
-            border: 1px solid #ccc;
-            padding: 10px;
-            text-align: left;
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background: #0f172a;
+            color: #e2e8f0;
+            min-height: 100vh;
+            padding: 30px 20px;
         }
+
+        h1 {
+            text-align: center;
+            font-size: 1.8rem;
+            margin-bottom: 6px;
+            color: #f8fafc;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #94a3b8;
+            font-size: 0.9rem;
+            margin-bottom: 30px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .card {
+            background: #1e293b;
+            border-radius: 12px;
+            padding: 20px;
+            border: 1px solid #334155;
+        }
+
+        .card-title {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: #64748b;
+            margin-bottom: 14px;
+        }
+
+        /* Controls */
+        .controls {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        input {
+            background: #0f172a;
+            border: 1px solid #334155;
+            color: #e2e8f0;
+            padding: 9px 14px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            flex: 1;
+            min-width: 120px;
+        }
+
+        button {
+            padding: 9px 18px;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: opacity 0.15s;
+        }
+
+        button:hover { opacity: 0.85; }
+
+        .btn-primary { background: #3b82f6; color: #fff; }
+        .btn-success { background: #22c55e; color: #fff; }
+        .btn-danger  { background: #ef4444; color: #fff; }
+        .btn-neutral { background: #475569; color: #fff; }
+
+        /* Status banner */
+        .status-banner {
+            text-align: center;
+            font-size: 1.4rem;
+            font-weight: 700;
+            padding: 14px;
+            border-radius: 10px;
+            background: #0f172a;
+            transition: background 0.2s;
+        }
+
+        .status-banner.allowed { background: #14532d; color: #4ade80; }
+        .status-banner.blocked { background: #450a0a; color: #f87171; }
+
+        /* Token bar */
+        .token-info {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.85rem;
+            color: #94a3b8;
+            margin-bottom: 8px;
+        }
+
+        .token-info span { color: #e2e8f0; font-weight: 600; }
+
+        .progress-track {
+            background: #0f172a;
+            border-radius: 999px;
+            height: 12px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            border-radius: 999px;
+            background: #3b82f6;
+            transition: width 0.3s ease, background 0.3s;
+            width: 100%;
+        }
+
+        .progress-fill.low { background: #f59e0b; }
+        .progress-fill.empty { background: #ef4444; }
+
+        /* Stats grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+        }
+
+        .stat {
+            background: #0f172a;
+            border-radius: 10px;
+            padding: 14px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 1.6rem;
+            font-weight: 700;
+            color: #f8fafc;
+        }
+
+        .stat-value.green { color: #4ade80; }
+        .stat-value.red   { color: #f87171; }
+
+        .stat-label {
+            font-size: 0.72rem;
+            color: #64748b;
+            margin-top: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        /* Config badges */
+        .config-row {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .badge {
+            background: #0f172a;
+            border: 1px solid #334155;
+            border-radius: 8px;
+            padding: 8px 14px;
+            font-size: 0.82rem;
+            color: #94a3b8;
+        }
+
+        .badge span { color: #e2e8f0; font-weight: 600; }
+
+        /* Log */
+        #log {
+            height: 180px;
+            overflow-y: auto;
+            font-size: 0.82rem;
+            font-family: monospace;
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+        }
+
+        .log-entry {
+            padding: 4px 8px;
+            border-radius: 5px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .log-entry.allowed { background: #052e16; color: #4ade80; }
+        .log-entry.blocked { background: #2d0909; color: #f87171; }
+
+        .log-time { color: #475569; }
     </style>
 </head>
 <body>
 
-<h1>🚀 Rate Limiter Simulator</h1>
+<h1>Rate Limiter Simulator</h1>
+<p class="subtitle">Token Bucket Algorithm &mdash; powered by Spring Boot + Redis</p>
 
-<input id="userId" placeholder="User ID" value="user1"/>
+<div class="container">
 
-<br>
+    <!-- Controls -->
+    <div class="card">
+        <div class="card-title">Controls</div>
+        <div class="controls">
+            <input id="userId" placeholder="User ID" value="user1"/>
+            <select id="interval" style="background:#0f172a;border:1px solid #334155;color:#e2e8f0;padding:9px 14px;border-radius:8px;font-size:0.9rem;">
+                <option value="200">Very Fast (200ms)</option>
+                <option value="500" selected>Fast (500ms)</option>
+                <option value="1000">Medium (1s)</option>
+                <option value="2000">Slow (2s)</option>
+            </select>
+            <button class="btn-primary" onclick="sendRequest()">Send Request</button>
+            <button class="btn-success" onclick="startAuto()">Start Auto</button>
+            <button class="btn-danger"  onclick="stopAuto()">Stop Auto</button>
+            <button class="btn-neutral" onclick="reset()">Reset</button>
+        </div>
+    </div>
 
-<button onclick="sendRequest()">Send Request</button>
-<button onclick="startAuto()">Start Auto</button>
-<button onclick="stopAuto()">Stop Auto</button>
-<button onclick="reset()">Reset</button>
+    <!-- Status -->
+    <div class="card">
+        <div class="card-title">Last Request</div>
+        <div class="status-banner" id="statusBanner">—</div>
+    </div>
 
-<h2 id="status"></h2>
-<h3 id="tokens"></h3>
+    <!-- Token Bucket -->
+    <div class="card">
+        <div class="card-title">Token Bucket</div>
+        <div class="token-info">
+            <span id="tokenLabel">Tokens: —</span>
+            <span id="tokenMax">Max: 10</span>
+        </div>
+        <div class="progress-track">
+            <div class="progress-fill" id="progressFill"></div>
+        </div>
+    </div>
 
-<div id="log"></div>
+    <!-- Stats -->
+    <div class="card">
+        <div class="card-title">Session Stats</div>
+        <div class="stats-grid">
+            <div class="stat">
+                <div class="stat-value" id="statTotal">0</div>
+                <div class="stat-label">Total Requests</div>
+            </div>
+            <div class="stat">
+                <div class="stat-value green" id="statAllowed">0</div>
+                <div class="stat-label">Allowed</div>
+            </div>
+            <div class="stat">
+                <div class="stat-value red" id="statBlocked">0</div>
+                <div class="stat-label">Blocked</div>
+            </div>
+            <div class="stat">
+                <div class="stat-value" id="statRate">—</div>
+                <div class="stat-label">Allow Rate</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Config -->
+    <div class="card">
+        <div class="card-title">Configuration</div>
+        <div class="config-row">
+            <div class="badge">Algorithm: <span>Token Bucket</span></div>
+            <div class="badge">Max Tokens: <span>10</span></div>
+            <div class="badge">Refill Rate: <span>10 tokens / 30s</span></div>
+            <div class="badge">Cost per Request: <span>1 token</span></div>
+            <div class="badge">State Store: <span>Redis</span></div>
+        </div>
+    </div>
+
+    <!-- Log -->
+    <div class="card">
+        <div class="card-title">Request Log</div>
+        <div id="log"></div>
+    </div>
+
+</div>
 
 <script>
-let interval;
-let inFlight = false;
+    const MAX_TOKENS = 10;
+    let interval;
+    let inFlight = false;
+    let total = 0, allowed = 0, blocked = 0;
 
-async function sendRequest() {
-    if (inFlight) return;
-    inFlight = true;
+    async function sendRequest() {
+        if (inFlight) return;
+        inFlight = true;
 
-    const userId = document.getElementById("userId").value;
+        const userId = document.getElementById("userId").value;
 
-    const res = await fetch(`/rate-limit/allow?userId=${userId}`);
-    const data = await res.json();
+        const res = await fetch(`/rate-limit/allow?userId=${userId}`);
+        const data = await res.json();
 
-    const status = document.getElementById("status");
-    const tokens = document.getElementById("tokens");
-    const log = document.getElementById("log");
+        const isAllowed = res.status === 200;
+        total++; isAllowed ? allowed++ : blocked++;
 
-    if (res.status === 200) {
-        status.innerHTML = "✅ Allowed";
-        status.className = "allowed";
-    } else {
-        status.innerHTML = "❌ Blocked";
-        status.className = "blocked";
+        // Status banner
+        const banner = document.getElementById("statusBanner");
+        banner.textContent = isAllowed ? "✅ Allowed" : "❌ Blocked (429 Too Many Requests)";
+        banner.className = "status-banner " + (isAllowed ? "allowed" : "blocked");
+
+        // Token bar
+        const pct = Math.max(0, Math.min(100, (data.tokens / MAX_TOKENS) * 100));
+        const fill = document.getElementById("progressFill");
+        fill.style.width = pct + "%";
+        fill.className = "progress-fill" + (pct <= 0 ? " empty" : pct <= 30 ? " low" : "");
+        document.getElementById("tokenLabel").textContent = `Tokens: ${data.tokens.toFixed(2)}`;
+
+        // Stats
+        document.getElementById("statTotal").textContent = total;
+        document.getElementById("statAllowed").textContent = allowed;
+        document.getElementById("statBlocked").textContent = blocked;
+        document.getElementById("statRate").textContent = ((allowed / total) * 100).toFixed(0) + "%";
+
+        // Log
+        const log = document.getElementById("log");
+        const entry = document.createElement("div");
+        entry.className = "log-entry " + (isAllowed ? "allowed" : "blocked");
+        entry.innerHTML = `<span class="log-time">${new Date().toLocaleTimeString()}</span>
+                           <span>${isAllowed ? "✅ ALLOWED" : "❌ BLOCKED"}</span>
+                           <span>tokens remaining: ${data.tokens.toFixed(2)}</span>`;
+        log.appendChild(entry);
+        log.scrollTop = log.scrollHeight;
+
+        inFlight = false;
     }
 
-    tokens.innerHTML = "Remaining Tokens: " + data.tokens.toFixed(2);
-
-    log.innerHTML += `<div>${new Date().toLocaleTimeString()} - ${status.innerText}</div>`;
-    log.scrollTop = log.scrollHeight;
-
-    inFlight = false;
-}
-
-function startAuto() {
-    interval = setInterval(sendRequest, 500);
-}
-
-function stopAuto() {
-    clearInterval(interval);
-}
-
-function reset() {
-    location.reload();
-}
+    function startAuto() {
+        const ms = parseInt(document.getElementById("interval").value);
+        interval = setInterval(sendRequest, ms);
+    }
+    function stopAuto()  { clearInterval(interval); }
+    function reset()     { location.reload(); }
 </script>
 
 </body>
