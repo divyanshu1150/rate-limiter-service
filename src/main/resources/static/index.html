@@ -278,6 +278,10 @@
                 <div class="progress-track">
                     <div class="progress-fill" id="progressFill"></div>
                 </div>
+                <div style="display:flex;justify-content:space-between;margin-top:10px;font-size:0.78rem;color:#64748b;">
+                    <span>Last Refill: <span id="lastRefill" style="color:#e2e8f0;">—</span></span>
+                    <span>Window: <span id="windowLen" style="color:#e2e8f0;">—</span></span>
+                </div>
             </div>
 
             <div class="card">
@@ -350,6 +354,8 @@
         fill.style.width = pct + "%";
         fill.className = "progress-fill" + (pct <= 0 ? " empty" : pct <= 30 ? " low" : "");
         document.getElementById("tokenLabel").textContent = `Tokens: ${data.tokens.toFixed(2)}`;
+        document.getElementById("lastRefill").textContent = new Date(data.lastRefillTime).toLocaleTimeString();
+        document.getElementById("windowLen").textContent = data.windowSeconds + "s";
 
         document.getElementById("statTotal").textContent = total;
         document.getElementById("statAllowed").textContent = allowed;

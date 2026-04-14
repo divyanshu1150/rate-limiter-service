@@ -17,7 +17,8 @@ public class RateLimiterService {
     private StringRedisTemplate redisTemplate;
 
     private static final int MAX_TOKENS = 10;
-    private static final double REFILL_RATE = 10.0 / 30.0; // tokens per second (full refill in 30s)
+    private static final int WINDOW_SECONDS = 30;
+    private static final double REFILL_RATE = (double) MAX_TOKENS / WINDOW_SECONDS;
 
     public RateLimiterResponse allowRequest(String userId) {
 
@@ -47,7 +48,7 @@ public class RateLimiterService {
 
         // Step 5: Allow or reject
         if (tokens < 1) {
-            return new RateLimiterResponse(false, tokens);
+            return new RateLimiterResponse(false, tokens, lastRefillTime, WINDOW_SECONDS);
         }
 
         // Consume token
@@ -62,6 +63,6 @@ public class RateLimiterService {
             return null;
         });
 
-        return new RateLimiterResponse(true, updatedTokens);
+        return new RateLimiterResponse(true, updatedTokens, currentTime, WINDOW_SECONDS);
     }
 }
