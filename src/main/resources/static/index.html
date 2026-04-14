@@ -340,12 +340,28 @@
 
         const userId = document.getElementById("userId").value;
         const res = await fetch(`/rate-limit/allow?userId=${userId}`);
-        const data = await res.json();
-
-        const isAllowed = res.status === 200;
-        total++; isAllowed ? allowed++ : blocked++;
 
         const banner = document.getElementById("statusBanner");
+        const log = document.getElementById("log");
+        const entry = document.createElement("div");
+        total++;
+
+        if (res.status === 500 || !res.ok && res.status !== 429) {
+            banner.textContent = `⚠️ Server Error (${res.status})`;
+            banner.className = "status-banner blocked";
+            entry.className = "log-entry blocked";
+            entry.innerHTML = `<span class="log-time">${new Date().toLocaleTimeString()}</span>
+                               <span>⚠️ ERROR ${res.status}</span>`;
+            log.appendChild(entry);
+            log.scrollTop = log.scrollHeight;
+            inFlight = false;
+            return;
+        }
+
+        const data = await res.json();
+        const isAllowed = res.status === 200;
+        isAllowed ? allowed++ : blocked++;
+
         banner.textContent = isAllowed ? "✅ Allowed" : "❌ Blocked (429 Too Many Requests)";
         banner.className = "status-banner " + (isAllowed ? "allowed" : "blocked");
 
@@ -362,8 +378,6 @@
         document.getElementById("statBlocked").textContent = blocked;
         document.getElementById("statRate").textContent = ((allowed / total) * 100).toFixed(0) + "%";
 
-        const log = document.getElementById("log");
-        const entry = document.createElement("div");
         entry.className = "log-entry " + (isAllowed ? "allowed" : "blocked");
         entry.innerHTML = `<span class="log-time">${new Date().toLocaleTimeString()}</span>
                            <span>${isAllowed ? "✅ ALLOWED" : "❌ BLOCKED"}</span>
